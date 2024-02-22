@@ -4,8 +4,6 @@ const fs = require("fs");
 
 exports.getList = (req, res) => {
 	const user_id = req.headers.authorization;
-	
-	console.log("userid: ",user_id)
   const file = path.join(rootDir, "data", "tasks.json");
 	fs.readFile(file, (err, taskList) => {
 		let tasks = [];
@@ -35,9 +33,9 @@ exports.addTask = (req, res) => {
 		fs.writeFile(file, JSON.stringify(tasks), (err) => {
 			if(err) {
 				console.log("Task creation issue.");
-				return res.send({ status: false, message: "Failed task creation." });
+				return res.send({ status: false, message: "Task creation has some problem. Please try after sometime." });
 			}
-			return res.send({ status: true, data: tasks });
+			return res.send({ status: true, message: "New task has been created successfully." });
 		});
 	})
 }
@@ -48,7 +46,7 @@ exports.getTask = (req, res) => {
 	const file = path.join(rootDir, 'data', 'tasks.json');
 	fs.readFile(file, (err, fileContent) => {
 		if(err) {
-			return res.send({ status: false, message: 'Task fetching has some issue.' });
+			return res.send({ status: false, message: 'Failed to retrive you task. Please try after sometime.' });
 		}
 		let tasks = JSON.parse(fileContent);
 		tasks = tasks.filter(task => task.user_id === user_id)
@@ -68,7 +66,7 @@ exports.updateTask = (req, res) => {
 	const file = path.join(rootDir, 'data', 'tasks.json');
 	fs.readFile(file, (err, fileContent) => {
 		if(err) {
-			return res.send({ status: false, message: 'Task update has some issue.' });
+			return res.send({ status: false, message: 'Task update has some issue. Please try after sometime.' });
 		}
 		let tasks = JSON.parse(fileContent);
 		tasks = tasks.filter(task => task.user_id === user_id)
@@ -83,10 +81,9 @@ exports.updateTask = (req, res) => {
 
 		fs.writeFile(file, JSON.stringify(tasks), (err) => {
 			if(err) {
-				console.log("Task updat issue.");
-				return res.send({ status: false, message: "Task update failed." });
+				return res.send({ status: false, message: "Task update has some issue. Please try after sometime." });
 			}
-			return res.send({ status: true, message: "Updated existing task details." });
+			return res.send({ status: true, message: "Task has been updated successfully." });
 		});
 	});
 }
@@ -97,7 +94,7 @@ exports.deleteTask = (req, res) => {
 	const file = path.join(rootDir, 'data', 'tasks.json');
 	fs.readFile(file, (err, fileContent) => {
 		if(err) {
-			return res.send({ status: false, message: 'Task update has some issue.' });
+			return res.send({ status: false, message: 'Task delete has some issue. Please try after sometime.' });
 		}
 
 		let tasks = JSON.parse(fileContent);
@@ -112,8 +109,7 @@ exports.deleteTask = (req, res) => {
 
 		fs.writeFile(file, JSON.stringify(tasks), (err) => {
 			if(err) {
-				console.log("Task delete issue.");
-				return res.send({ status: false, message: "Task delete failed." });
+				return res.send({ status: false, message: "Task delete has some issue. Please try after sometime." });
 			}
 			return res.send({ status: true, message: "Task has been deleted successfully." });
 		});

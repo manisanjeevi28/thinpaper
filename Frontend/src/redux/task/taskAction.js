@@ -12,6 +12,11 @@ export const getTaskListAction = (data) => dispatch => {
           type: 'LISTSUCCACTION',
           payload: res?.data?.data
         });
+      } else {
+        dispatch({
+          type: 'ERROR',
+          payload: res?.data
+        });
       }
     })
 }
@@ -26,7 +31,12 @@ export const AddTaskAction = (data) => dispatch => {
       if(res?.data?.status===true){
         dispatch({
           type: 'ADDSUCCACTION',
-          payload: res?.data?.data
+          payload: res?.data
+        });
+      } else {
+        dispatch({
+          type: 'ERROR',
+          payload: res?.data
         });
       }
     })
@@ -41,22 +51,52 @@ export const deleteTaskAction = (id) => dispatch => {
       if(res?.data?.status===true){
         dispatch({
           type: 'DELETESUCCACTION',
-          msg: res?.data?.message
+          payload: res?.data
+        });
+      } else {
+        dispatch({
+          type: 'ERROR',
+          payload: res?.data
         });
       }
     })
 }
 
-export const editTaskAction = (data) => dispatch => {
-  axios.put(REACT_BACKEND_URL+'/tasks/delete/', {
+export const getTaskAction = (id) => dispatch => {
+  axios.post(REACT_BACKEND_URL+`/tasks/${id}`, null, {
     headers: {
       'authorization': sessionStorage.getItem('uid')
     },
   }).then(res => {
       if(res?.data?.status===true){
         dispatch({
-          type: 'ADDSUCCACTION',
+          type: 'GETSUCCACTION',
           payload: res?.data?.data
+        });
+      } else {
+        dispatch({
+          type: 'ERROR',
+          payload: res?.data
+        });
+      }
+    })
+}
+
+export const editTaskAction = (data) => dispatch => {
+  axios.put(REACT_BACKEND_URL+`/tasks/${data.id}`, data, {
+    headers: {
+      'authorization': sessionStorage.getItem('uid')
+    },
+  }).then(res => {
+      if(res?.data?.status===true){
+        dispatch({
+          type: 'EDITSUCCACTION',
+          payload: res?.data
+        });
+      } else {
+        dispatch({
+          type: 'ERROR',
+          payload: res?.data
         });
       }
     })
