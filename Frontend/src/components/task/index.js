@@ -4,14 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { logoutAction } from '../../redux/user/userAction';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { getTaskListAction, AddTaskAction, getTaskAction, editTaskAction, deleteTaskAction } from '../../redux/task/taskAction';
+import { getTaskListAction, AddTaskAction, getTaskAction, editTaskAction, deleteTaskAction, changeTaskStatusAction } from '../../redux/task/taskAction';
 
 const TaskDashboard = (props) => {
   const {info} = props;
   const taskInput = useRef(null);
   const datepickerRef = useRef(null);
   const navigate = useNavigate();
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [startDate, setStartDate] = useState(new Date());
   const [taskItem, setTaskItem] = useState('');
   const [list, setList] = useState([]);
 
@@ -26,7 +26,7 @@ const TaskDashboard = (props) => {
     if(info) {
       taskInput.current.focus();
       setTaskItem(info?.message);
-      setStartDate(fomateDate(info?.due));
+      setStartDate(new Date(info?.due));
       setEditItem(info?.id);
     } else {
       props.getTaskListAction();
@@ -35,9 +35,8 @@ const TaskDashboard = (props) => {
 
   // Default component render
   useEffect(() => {
-    //setStartDate(fomateDate());
     props.getTaskListAction();
-  }, [])
+  }, []);
 
   const logout = () => {
     props.logoutAction();
@@ -47,9 +46,9 @@ const TaskDashboard = (props) => {
   const handleSubmitTask= (e) => {
     e.preventDefault();
     if(editItem) {
-      props.editTaskAction({"id": editItem, "message": taskItem, "date": startDate});
+      props.editTaskAction({"id": editItem, "message": taskItem, "date": startDate.toISOString()});
     } else {
-      props.AddTaskAction({"message": taskItem, "date": startDate});
+      props.AddTaskAction({"message": taskItem, "date": startDate.toISOString()});
     }
     handleReset();
   }
@@ -57,6 +56,7 @@ const TaskDashboard = (props) => {
   const handleDelete = (id) => {
     if(window.confirm("Are you sure want to delete this task?")) {
       props.deleteTaskAction(id);
+      handleReset();
     }
   }
 
@@ -66,8 +66,16 @@ const TaskDashboard = (props) => {
 
   const handleReset = () => {
     setTaskItem('');
-    setStartDate(fomateDate());
+    setStartDate(new Date());
     setEditItem(0);
+  }
+
+  const handleTaskCompleteChk = (e, taskId) => {
+    if (e.target.checked) {
+      props.changeTaskStatusAction({"id": taskId, "status": 1});
+    } else {
+      props.changeTaskStatusAction({"id": taskId, "status": 2});
+    }
   }
 
 
@@ -90,27 +98,25 @@ const TaskDashboard = (props) => {
           <div className="col">
             <div className="card" >
               <div className="card-body py-4 px-4 px-md-5">
-
-                <p className="h1 text-center mt-3 mb-4 pb-3 text-primary">
+                <p className="h1 text-center mt-3 mb-4 pb-3 text-primary col-md-11">
                   <i className="fa fa-check-square me-1"></i>
                   <u>My Task Manager</u>
-                  
                 </p>
-                <p style={{"text-align": "right", "cursor": "pointer"}}><span onClick={(e) => logout()}>Logout</span></p>
+                <p className="logout col-md-1 text-primary"><span onClick={(e) => logout()}>Logout</span></p>
 
                 <div className="pb-2">
                   <div className="card">
                     <div className="card-body">
                       <div className="d-flex flex-row align-items-center">
-                        <form className='form-group width100' method='post' onSubmit={handleSubmitTask}>
+                        <form className='form-group custom-form width100' method='post' onSubmit={handleSubmitTask}>
                           <input type="text" ref={taskInput} required className="form-control form-control-lg" placeholder="Add new task..." onChange={(e) => setTaskItem(e.target.value)} value={taskItem} />
-                          <div className='mt-3 row'>
+                          <div className='action-wrapper mt-3 row'>
                             <span className='col-md-3'>
                             <DatePicker ref={datepickerRef} 
                               className="form-control form-control-sm mr-3" 
                               dateFormat="dd-MM-yyyy"
                               selected={startDate} 
-                              onChange={(date) =>setStartDate(fomateDate(date))} />
+                              onChange={(date) =>setStartDate(new Date(date))} />
                             </span>
                             <button type="submit" className="btn btn-primary mx-3 col-md-2">{editItem ? "Update Task" : "Add Task"}</button>
                             {editItem ? <button type='reset' className="btn btn-primary mx-3 col-md-2" onClick={() => handleReset() }>Reset</button> : ''}
@@ -122,41 +128,29 @@ const TaskDashboard = (props) => {
                 </div>
 
                 <hr className="my-4" />
-                  {props?.msg ? <div className='alert alert-success'>{props?.msg}</div> : ''}
-                  {props?.msg && props?.errorFlag ? <div className='alert alert-danger'>{props?.msg}</div> : ''}
+                  {props?.msg && props?.errorFlag ? <div className='alert alert-danger'>{props?.msg}</div> : (props?.msg ? <div className='alert alert-success'>{props?.msg}</div> : '')}
+                  
+                  {list.length == 0 ? <ul className="list-group border-0"><li className="list-group-item border-0 px-0">No Records found</li></ul>: null}
                   
                   {list && list.map((item) => {
-                    return(<ul className="list-group list-group-horizontal rounded-0" id={item.id}>
-                    <li
-                      className="list-group-item d-flex align-items-center ps-0 pe-3 py-1 rounded-0 border-0 bg-transparent">
+                    return(<ul className={(item.status == 1 ? "item-completed" : "item-open") + " list-group list-group-horizontal rounded-0"} id={item.id}>
+                    <li className="list-group-item d-flex align-items-center ps-0 pe-3 py-1 rounded-0 border-0 bg-transparent">
                       <div className="form-check">
-                        <input className="form-check-input me-0" type="checkbox" value="" id="flexCheckChecked2"
-                          aria-label="..." />
+                        <input className="form-check-input me-0" onChange={(e) => handleTaskCompleteChk(e, item.id)} type="checkbox" value="" id="flexCheckChecked2"  defaultChecked={item.status == 1 ? true : false} aria-label="..." />
                       </div>
                     </li>
                     <li
                       className="list-group-item px-3 py-1 d-flex align-items-center flex-grow-1 border-0 bg-transparent">
                       <p className="lead fw-normal mb-0">{item.message}</p>
                     </li>
-                    {/*<li className="list-group-item px-3 py-1 d-flex align-items-center border-0 bg-transparent">
-                      <div
-                        className="py-2 px-3 me-2 border border-warning rounded-3 d-flex align-items-center bg-light">
-                        <p className="small mb-0">
-                          <a href="#!" data-mdb-toggle="tooltip" title="Due on date">
-                            <i className="fas fa-hourglass-half me-2 text-warning"></i>
-                          </a>
-                          {item.due}
-                        </p>
-                      </div>
-                    </li>*/}
                     <li className="list-group-item ps-3 pe-0 py-1 rounded-0 border-0 bg-transparent">
                       <div className="d-flex flex-row justify-content-end mb-1">
-                        <span className="text-info" data-mdb-toggle="tooltip" title="Edit todo" onClick={() => handleEdit(item.id)}><i className="fa fa-pencil me-3"></i></span>
-                        <span className="text-danger" data-mdb-toggle="tooltip" title="Delete todo" onClick={() => handleDelete(item.id)}><i className="fa fa-trash"></i></span>
+                        <span className="text-info" data-mdb-toggle="tooltip" title="Edit task" onClick={() => handleEdit(item.id)}><i className="fa fa-pencil me-3"></i></span>
+                        <span className="text-danger" data-mdb-toggle="tooltip" title="Delete task" onClick={() => handleDelete(item.id)}><i className="fa fa-trash"></i></span>
                       </div>
                       <div className="text-end text-muted">
-                        <span className="text-muted" data-mdb-toggle="tooltip" title="Created date">
-                          <p className="small mb-0"><i className="fa fa-info-circle me-2"></i>{item.due}</p>
+                        <span className="text-muted" data-mdb-toggle="tooltip" title="Due date">
+                          <p className="small mb-0"><i className="fa fa-info-circle me-2"></i>{fomateDate(item.due)}</p>
                         </span>
                       </div>
                     </li>
@@ -187,6 +181,7 @@ const mapDispatchToProps = {
   AddTaskAction,
   getTaskAction,
   deleteTaskAction,
-  editTaskAction
+  editTaskAction,
+  changeTaskStatusAction
 }
 export default connect(mapStateToProps, mapDispatchToProps)(TaskDashboard);

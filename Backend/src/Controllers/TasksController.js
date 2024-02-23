@@ -14,7 +14,7 @@ exports.getList = (req, res) => {
 		if(tasks.length > 0) {
 			return res.send({ status: true, data: tasks.filter(task => task.user_id === user_id) })
 		}
-		return res.send({ status: false, message: "No records found." });
+		return res.send({ status: true, message: "No records found." });
 	});
 }
 
@@ -112,6 +112,37 @@ exports.deleteTask = (req, res) => {
 				return res.send({ status: false, message: "Task delete has some issue. Please try after sometime." });
 			}
 			return res.send({ status: true, message: "Task has been deleted successfully." });
+		});
+	});
+}
+
+exports.updateTaskStatus = (req, res) => {
+	const user_id = req.headers.authorization;
+	const taskId = req.params.id;
+	const file = path.join(rootDir, 'data', 'tasks.json');
+	fs.readFile(file, (err, fileContent) => {
+		if(err) {
+			return res.send({ status: false, message: 'Task status update has some issue. Please try after sometime.' });
+		}
+		let tasks = JSON.parse(fileContent);
+		tasks = tasks.filter(task => task.user_id === user_id)
+
+		const taskItemIndex = tasks.findIndex(item => item.id ==  taskId);
+		if(0 > taskItemIndex) {
+			return res.send({ status: false, message: 'Task doesn\'t exist.' });
+		}
+
+		const taskStatus = req.body.status;
+		if(taskStatus != 1 && taskStatus != 2) {
+			return res.send({ status: false, message: 'Unknown task status.' });
+		}
+
+		tasks[taskItemIndex].status = req.body.status;
+		fs.writeFile(file, JSON.stringify(tasks), (err) => {
+			if(err) {
+				return res.send({ status: false, message: "Task status update has some issue. Please try after sometime." });
+			}
+			return res.send({ status: true, message: (taskStatus == 1 ? "Task has been completed successfully." : "Task has been reopend successfully." )});
 		});
 	});
 }

@@ -101,3 +101,31 @@ export const editTaskAction = (data) => dispatch => {
       }
     })
 }
+
+
+export const changeTaskStatusAction = (data) => dispatch => {
+  axios.put(REACT_BACKEND_URL+`/tasks/status/${data.id}`, data, {
+    headers: {
+      'authorization': sessionStorage.getItem('uid')
+    },
+  }).then(res => {
+      if(res?.data?.status===true){
+        if(data.status == 1) {
+          dispatch({
+            type: 'MARKCOMPLETE',
+            payload: res?.data
+          });
+        } else {
+          dispatch({
+            type: 'MARKREOPEN',
+            payload: res?.data
+          });
+        }
+      } else {
+        dispatch({
+          type: 'ERROR',
+          payload: res?.data
+        });
+      }
+    })
+}

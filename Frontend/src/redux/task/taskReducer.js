@@ -30,6 +30,7 @@ const taskReducer = (state, action) => {
         return { 
           ...state,
           errorFlag: false,
+          info: null,
           info: action.payload,
           updated: new Date()
         };
@@ -38,17 +39,37 @@ const taskReducer = (state, action) => {
         return { 
           ...state,
           errorFlag: false,
+          info: null,
           msg: action.payload?.message,
           updated: new Date()
         };
         break;
     case "ERROR":
-          return { 
-            ...state,
-            errorFlag: true,
-            msg: action.payload?.message,
-          };
-          break;
+      return { 
+        ...state,
+        errorFlag: true,
+        info: null,
+        msg: action.payload?.message,
+      };
+      break;
+    case 'MARKCOMPLETE':
+      return { 
+        ...state,
+        errorFlag: false,
+        info: null,
+        msg: action.payload?.message,
+        updated: new Date()
+      };
+      break;
+    case 'MARKREOPEN':
+      return { 
+        ...state,
+        errorFlag: false,
+        info: null,
+        msg: action.payload?.message,
+        updated: new Date()
+      };
+      break;
     default:
       return {...state};
   }
