@@ -7,7 +7,7 @@ var jsonParser = bodyParser.json();
 
 app.use((req, res, next) => {
     res.setHeader("Content-Type", "text/html");
-    res.append('Access-Control-Allow-Origin', ['*']);
+    res.append('Access-Control-Allow-Origin', ['http://localhost:3000']);
     res.header("Access-Control-Allow-Headers","*")
     res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.append('Access-Control-Allow-Headers', 'Content-Type');
@@ -17,9 +17,6 @@ app.use((req, res, next) => {
 // Routes
 const usersRoutes = require('./src/routes/users');
 const tasksRoutes = require('./src/routes/tasks');
-
-//app.use(bodyParser.json());
-//app.use(express.json());
 
 app.use('/users', jsonParser, usersRoutes);
 app.use('/tasks', jsonParser, tasksRoutes);

@@ -98,7 +98,7 @@ exports.deleteTask = (req, res) => {
 		}
 
 		let tasks = JSON.parse(fileContent);
-		tasks = tasks.filter(task => { console.log(task.user_id, user_id); return task.user_id == user_id});
+		tasks = tasks.filter(task => task.user_id == user_id);
 
 		const taskItemIndex = tasks.findIndex(item => item.id ==  taskId);
 		if(0 > taskItemIndex) {

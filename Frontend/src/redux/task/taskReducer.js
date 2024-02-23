@@ -70,6 +70,14 @@ const taskReducer = (state, action) => {
         updated: new Date()
       };
       break;
+    case 'NETWORKERROR':
+      return { 
+        ...state,
+        errorFlag: true,
+        info: null,
+        msg: "Oops! somthing went wrong. Please try again after sometime.",
+      };
+    break;
     default:
       return {...state};
   }

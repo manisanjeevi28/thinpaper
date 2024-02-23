@@ -18,7 +18,12 @@ export const getTaskListAction = (data) => dispatch => {
           payload: res?.data
         });
       }
-    })
+    }).catch(function(error) {
+      console.log(error)
+      dispatch({
+        type: 'NETWORKERROR',
+      });
+    });
 }
 
 
@@ -39,7 +44,12 @@ export const AddTaskAction = (data) => dispatch => {
           payload: res?.data
         });
       }
-    })
+    }).catch(function(error) {
+      console.log(error)
+      dispatch({
+        type: 'NETWORKERROR',
+      });
+    });
 }
 
 export const deleteTaskAction = (id) => dispatch => {
@@ -59,7 +69,12 @@ export const deleteTaskAction = (id) => dispatch => {
           payload: res?.data
         });
       }
-    })
+    }).catch(function(error) {
+      console.log(error)
+      dispatch({
+        type: 'NETWORKERROR',
+      });
+    });
 }
 
 export const getTaskAction = (id) => dispatch => {
@@ -79,7 +94,12 @@ export const getTaskAction = (id) => dispatch => {
           payload: res?.data
         });
       }
-    })
+    }).catch(function(error) {
+      console.log(error)
+      dispatch({
+        type: 'NETWORKERROR',
+      });
+    });
 }
 
 export const editTaskAction = (data) => dispatch => {
@@ -99,7 +119,12 @@ export const editTaskAction = (data) => dispatch => {
           payload: res?.data
         });
       }
-    })
+    }).catch(function(error) {
+      console.log(error)
+      dispatch({
+        type: 'NETWORKERROR',
+      });
+    });
 }
 
 
@@ -127,5 +152,10 @@ export const changeTaskStatusAction = (data) => dispatch => {
           payload: res?.data
         });
       }
-    })
+    }).catch(function(error) {
+      console.log(error)
+      dispatch({
+        type: 'NETWORKERROR',
+      });
+    });
 }
